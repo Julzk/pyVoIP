@@ -522,6 +522,8 @@ class VoIPPhone:
                 self._callback_MSG_Invite(request)
             elif request.method == "BYE":
                 self._callback_MSG_Bye(request)
+            elif request.method == "CANCEL":
+                self._callback_MSG_Cancel(request)
         else:
             if request.status == SIP.SIPStatus.OK:
                 self._callback_RESP_OK(request)
@@ -586,6 +588,14 @@ class VoIPPhone:
                     message.encode("utf8"), (self.server, self.port)
                 )
                 raise
+
+    def _callback_MSG_Cancel(self, request: SIP.SIPMessage) -> None:
+        debug("BYE recieved")
+        call_id = request.headers["Call-ID"]
+        if call_id not in self.calls:
+            return
+        self.calls[call_id].state = "CANCELED"
+
 
     def _callback_MSG_Bye(self, request: SIP.SIPMessage) -> None:
         debug("BYE recieved")
