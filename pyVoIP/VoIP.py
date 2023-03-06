@@ -39,6 +39,7 @@ class CallState(Enum):
     RINGING = "RINGING"
     ANSWERED = "ANSWERED"
     ENDED = "ENDED"
+    CANCELED = "CANCELED"
 
 
 class PhoneStatus(Enum):
@@ -588,13 +589,12 @@ class VoIPPhone:
                     message.encode("utf8"), (self.server, self.port)
                 )
                 raise
-
     def _callback_MSG_Cancel(self, request: SIP.SIPMessage) -> None:
         debug("BYE recieved")
         call_id = request.headers["Call-ID"]
         if call_id not in self.calls:
             return
-        self.calls[call_id].state = "CANCELED"
+        self.calls[call_id].state = CallState.ENDED
 
 
     def _callback_MSG_Bye(self, request: SIP.SIPMessage) -> None:
